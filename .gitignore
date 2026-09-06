@@ -1,0 +1,8 @@
+# Temporary/Generated Files
+*.log
+.DS_Store
+
+# Environment variables
+.env
+
+docker-compose.override.yml
