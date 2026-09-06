@@ -1,0 +1,88 @@
+# Comics — self-hosted manga & comics stack
+# Komga (reader) + Suwayomi (downloader). Deployed via Docker Swarm on the Muspelheim worker node.
+
+networks:
+  aether-net:
+    external: true
+
+services:
+  komga:
+    image: gotson/komga:latest
+    user: "1000:1000"
+    environment:
+      - TZ=Pacific/Auckland
+      - JAVA_OPTS=-Dorg.apache.tomcat.util.http.parser.HttpParser.allowedHostDelimiter=_
+    volumes:
+      - /opt/comics/komga:/config
+      - /mnt/storage/media:/data
+      - /mnt/storage/comics/library:/downloads
+    labels:
+      - "com.docker.compose.project=${STACK_NAME}"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [ "node.hostname == muspelheim" ]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.komga.rule=Host(`komga.${DOMAIN_NAME}`)"
+        - "traefik.http.routers.komga.entrypoints=websecure"
+        - "traefik.http.routers.komga.tls=true"
+        - "traefik.http.services.komga.loadbalancer.server.port=25600"
+        # --- HOMEPAGE LABELS ---
+        - "homepage.group=Media Server"
+        - "homepage.name=Komga"
+        - "homepage.icon=komga.png"
+        - "homepage.href=https://komga.${DOMAIN_NAME}"
+        - "homepage.description=Comics & Manga"
+        # --- HOMEPAGE WIDGET LABELS ---
+        - "homepage.widget.type=komga"
+        - "homepage.widget.url=http://tasks.${STACK_NAME}_komga:25600"
+        - "homepage.widget.username={{HOMEPAGE_VAR_KOMGA_USERNAME}}"
+        - "homepage.widget.password={{HOMEPAGE_VAR_KOMGA_PASSWORD}}"
+        - "homepage.widget.version=2"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-H", "Host: localhost", "http://localhost:25600"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - aether-net
+
+  suwayomi:
+    image: ghcr.io/suwayomi/suwayomi-server:stable
+    # Runs as UID 1000 by default (the image's `suwayomi` user) — matches the shared volume ownership.
+    environment:
+      - TZ=Pacific/Auckland
+      - DOWNLOAD_AS_CBZ=true
+      - AUTH_MODE=basic_auth
+      - AUTH_USERNAME=${SUWAYOMI_AUTH_USERNAME}
+      - AUTH_PASSWORD=${SUWAYOMI_AUTH_PASSWORD}
+    volumes:
+      # Data dir first, then the shared downloads subfolder mounted over it
+      # (the more-specific bind mount wins) so Suwayomi downloads straight
+      # into the shared library that Komga reads.
+      - /opt/comics/suwayomi:/home/suwayomi/.local/share/Tachidesk
+      - /mnt/storage/comics/library:/home/suwayomi/.local/share/Tachidesk/downloads
+    labels:
+      - "com.docker.compose.project=${STACK_NAME}"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [ "node.hostname == muspelheim" ]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.suwayomi.rule=Host(`manga.${DOMAIN_NAME}`)"
+        - "traefik.http.routers.suwayomi.entrypoints=websecure"
+        - "traefik.http.routers.suwayomi.tls=true"
+        - "traefik.http.services.suwayomi.loadbalancer.server.port=4567"
+        # --- HOMEPAGE LABELS ---
+        - "homepage.group=Media Automation"
+        - "homepage.name=Suwayomi"
+        - "homepage.icon=suwayomi.png"
+        - "homepage.href=https://manga.${DOMAIN_NAME}"
+        - "homepage.description=Manga Downloader"
+    networks:
+      - aether-net

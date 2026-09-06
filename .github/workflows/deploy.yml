@@ -1,0 +1,24 @@
+name: Comics Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, gaia]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Deploy Stack
+        env:
+          DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+          SUWAYOMI_AUTH_USERNAME: ${{ vars.SUWAYOMI_AUTH_USERNAME }}
+          SUWAYOMI_AUTH_PASSWORD: ${{ secrets.SUWAYOMI_AUTH_PASSWORD }}
+        run: |
+          chmod +x scripts/deploy.sh
+          ./scripts/deploy.sh "comics" docker-compose.yml
