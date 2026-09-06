@@ -37,15 +37,17 @@ Pushes to `main` deploy automatically via GitHub Actions on the Gaia runner
 | `DOMAIN_NAME`           | var      | Fleet domain (shared)          |
 | `SUWAYOMI_AUTH_USERNAME`| var      | Suwayomi basic-auth username   |
 | `SUWAYOMI_AUTH_PASSWORD`| secret   | Suwayomi basic-auth password   |
+| `KOMGA_OIDC_CLIENT_ID`  | var      | Komga OIDC client-id (Authentik) |
+| `KOMGA_OIDC_CLIENT_SECRET`| secret  | Komga OIDC client-secret (Authentik) |
 
-Komga needs no auth secrets here — it uses native OIDC via Authentik.
+Komga's OIDC client-id/secret are injected as container env vars (see `config/komga/application.yml`).
 
 ## Auth
 
 - **Komga** — native OIDC against Authentik (`id.${DOMAIN_NAME}`). Configure the
-  Authentik Application + OAuth2/OpenID Connect provider, then set Komga's
-  `komga.oauth2-account-creation=true` (and the provider issuer/client details)
-  in `/opt/comics/komga/application.yml`. Browser login is SSO; OPDS/Mihon still
+  Authentik Application + OAuth2/OpenID Connect provider. The OIDC config is
+  committed at `config/komga/application.yml` (loaded as a Swarm config); the
+  client-id/secret come from env vars at deploy. Browser login is SSO; OPDS/Mihon still
   uses per-user Komga credentials (Basic Auth).
 - **Suwayomi** — no OIDC support yet (upstream request #926). Runs admin-only
   behind HTTP Basic Auth (`AUTH_MODE=basic_auth`). Treat as an internal

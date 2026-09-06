@@ -12,10 +12,16 @@ services:
     environment:
       - TZ=Pacific/Auckland
       - JAVA_OPTS=-Dorg.apache.tomcat.util.http.parser.HttpParser.allowedHostDelimiter=_
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - KOMGA_OIDC_CLIENT_ID=${KOMGA_OIDC_CLIENT_ID}
+      - KOMGA_OIDC_CLIENT_SECRET=${KOMGA_OIDC_CLIENT_SECRET}
     volumes:
       - /opt/comics/komga:/config
       - /mnt/storage/media:/data
       - /mnt/storage/comics/library:/downloads
+    configs:
+      - source: komga_application_yml
+        target: /config/application.yml
     labels:
       - "com.docker.compose.project=${STACK_NAME}"
     deploy:
@@ -86,3 +92,7 @@ services:
         - "homepage.description=Manga Downloader"
     networks:
       - aether-net
+
+configs:
+  komga_application_yml:
+    file: ./config/komga/application.yml
