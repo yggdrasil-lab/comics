@@ -1,0 +1,26 @@
+# Komga OIDC (Authentik) configuration.
+# Loaded into the container as a read-only Docker Swarm config at
+# /config/application.yml (see the `configs:` block in docker-compose.yml).
+# Secrets are NOT stored here — the ${...} placeholders are resolved by Spring
+# Boot from the container environment, injected by GitHub Actions at deploy time.
+komga:
+  oauth2-account-creation: true
+  oidc-email-verification: false
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          authentik:
+            provider: authentik
+            client-id: ${KOMGA_OIDC_CLIENT_ID}
+            client-secret: ${KOMGA_OIDC_CLIENT_SECRET}
+            client-name: authentik
+            scope: openid,email,profile
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+        provider:
+          authentik:
+            user-name-attribute: preferred_username
+            issuer-uri: https://id.${DOMAIN_NAME}/application/o/komga/

@@ -19,6 +19,8 @@ jobs:
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
           SUWAYOMI_AUTH_USERNAME: ${{ vars.SUWAYOMI_AUTH_USERNAME }}
           SUWAYOMI_AUTH_PASSWORD: ${{ secrets.SUWAYOMI_AUTH_PASSWORD }}
+          KOMGA_OIDC_CLIENT_ID: ${{ secrets.KOMGA_OIDC_CLIENT_ID }}
+          KOMGA_OIDC_CLIENT_SECRET: ${{ secrets.KOMGA_OIDC_CLIENT_SECRET }}
         run: |
           chmod +x scripts/deploy.sh
           ./scripts/deploy.sh "comics" docker-compose.yml
