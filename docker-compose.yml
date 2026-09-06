@@ -30,7 +30,7 @@ services:
         - "traefik.http.routers.komga.tls=true"
         - "traefik.http.services.komga.loadbalancer.server.port=25600"
         # --- HOMEPAGE LABELS ---
-        - "homepage.group=Media Server"
+        - "homepage.group=Manga"
         - "homepage.name=Komga"
         - "homepage.icon=komga.png"
         - "homepage.href=https://komga.${DOMAIN_NAME}"
@@ -79,7 +79,7 @@ services:
         - "traefik.http.routers.suwayomi.tls=true"
         - "traefik.http.services.suwayomi.loadbalancer.server.port=4567"
         # --- HOMEPAGE LABELS ---
-        - "homepage.group=Media Automation"
+        - "homepage.group=Manga"
         - "homepage.name=Suwayomi"
         - "homepage.icon=suwayomi.png"
         - "homepage.href=https://manga.${DOMAIN_NAME}"
