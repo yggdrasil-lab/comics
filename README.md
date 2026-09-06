@@ -37,7 +37,7 @@ Pushes to `main` deploy automatically via GitHub Actions on the Gaia runner
 | `DOMAIN_NAME`           | var      | Fleet domain (shared)          |
 | `SUWAYOMI_AUTH_USERNAME`| var      | Suwayomi basic-auth username   |
 | `SUWAYOMI_AUTH_PASSWORD`| secret   | Suwayomi basic-auth password   |
-| `KOMGA_OIDC_CLIENT_ID`  | var      | Komga OIDC client-id (Authentik) |
+| `KOMGA_OIDC_CLIENT_ID`  | secret   | Komga OIDC client-id (Authentik) |
 | `KOMGA_OIDC_CLIENT_SECRET`| secret  | Komga OIDC client-secret (Authentik) |
 
 Komga's OIDC client-id/secret are injected as container env vars (see `config/komga/application.yml`).
