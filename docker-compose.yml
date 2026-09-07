@@ -11,7 +11,6 @@ services:
     user: "1000:1000"
     environment:
       - TZ=Pacific/Auckland
-      - JAVA_OPTS=-Dorg.apache.tomcat.util.http.parser.HttpParser.allowedHostDelimiter=_
       - DOMAIN_NAME=${DOMAIN_NAME}
       - KOMGA_OIDC_CLIENT_ID=${KOMGA_OIDC_CLIENT_ID}
       - KOMGA_OIDC_CLIENT_SECRET=${KOMGA_OIDC_CLIENT_SECRET}
@@ -43,7 +42,7 @@ services:
         - "homepage.description=Comics & Manga"
         # --- HOMEPAGE WIDGET LABELS ---
         - "homepage.widget.type=komga"
-        - "homepage.widget.url=http://tasks.${STACK_NAME}_komga:25600"
+        - "homepage.widget.url=http://komga:25600"
         - "homepage.widget.key={{HOMEPAGE_VAR_KOMGA_KEY}}"
         - "homepage.widget.version=2"
     healthcheck:
@@ -53,7 +52,9 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - aether-net
+      aether-net:
+        aliases:
+          - komga
 
   suwayomi:
     image: ghcr.io/suwayomi/suwayomi-server:stable
