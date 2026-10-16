@@ -6,7 +6,8 @@ Self-hosted manga & comics stack on the Muspelheim worker node. Split out of Apo
 |-----------|-----------------------------|------------------------------------------|--------------------------|
 | Komga     | Comics/manga reader + OPDS  | `gotson/komga`                           | Authentik OIDC (native)  |
 | Suwayomi  | Manga downloader (Mihon)    | `ghcr.io/suwayomi/suwayomi-server`       | HTTP Basic (admin-only)  |
-| FlareSolverr (Byparr) | Cloudflare bypass solver  | `ghcr.io/thephaseless/byparr`            | Internal (none)         |
+
+*Note: Cloudflare anti-bot challenge solving is provided cluster-wide by the shared **Poseidon** fleet (`http://poseidon_flaresolverr:8191` over `aether-net`).*
 
 ## How the pieces fit
 
@@ -21,11 +22,10 @@ Suwayomi --downloads (CBZ)--> /mnt/storage/comics/library <--library-- Komga
 The `DOWNLOAD_AS_CBZ=true` env is mandatory — Suwayomi defaults to loose image
 folders, which Komga cannot index.
 
-Some sources sit behind Cloudflare. Suwayomi routes those through Byparr (a
-FlareSolverr-compatible solver) to solve the challenge before fetching. Wired
-via `FLARESOLVERR_ENABLED` + `FLARESOLVERR_URL` env vars on the Suwayomi service;
-Byparr is internal-only (no Traefik route, no auth) — Suwayomi is the only
-thing that talks to it.
+Some sources sit behind Cloudflare. Suwayomi routes those through the shared
+FlareSolverr/Byparr solver on `aether-net` to solve challenges before fetching.
+Wired via `FLARESOLVERR_ENABLED=true` and `FLARESOLVERR_URL=http://poseidon_flaresolverr:8191`
+env vars on Suwayomi.
 
 ## Deploy
 
