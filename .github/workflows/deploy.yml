@@ -11,8 +11,6 @@ jobs:
     runs-on: [self-hosted, gaia]
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Deploy Stack
         env:
@@ -22,5 +20,6 @@ jobs:
           KOMGA_OIDC_CLIENT_ID: ${{ secrets.KOMGA_OIDC_CLIENT_ID }}
           KOMGA_OIDC_CLIENT_SECRET: ${{ secrets.KOMGA_OIDC_CLIENT_SECRET }}
         run: |
-          chmod +x scripts/deploy.sh
-          ./scripts/deploy.sh "comics" docker-compose.yml
+          curl -fsSL https://raw.githubusercontent.com/yggdrasil-lab/yggdrasil-os/main/deploy/deploy.sh -o /tmp/deploy.sh
+          chmod +x /tmp/deploy.sh
+          /tmp/deploy.sh "comics" docker-compose.yml
