@@ -1,0 +1,36 @@
+# Komf (Komga Metadata Fetcher) configuration.
+# Loaded into the container as a read-only Docker Swarm config at /config/application.yml.
+# Credentials are substituted from environment variables injected at deploy time.
+
+komga:
+  baseUri: http://komga:25600
+  komgaUser: ${KOMF_KOMGA_USER}
+  komgaPassword: ${KOMF_KOMGA_PASSWORD}
+  eventListener:
+    enabled: true
+  metadataUpdate:
+    default:
+      libraryType: "MANGA"
+      updateModes:
+        - "API"
+      aggregate: true
+      mergeTags: true
+      mergeGenres: true
+      bookCovers: true
+      seriesCovers: true
+      overrideExistingCovers: true
+
+database:
+  file: /config/database.sqlite
+
+metadataProviders:
+  defaultProviders:
+    mangaUpdates:
+      priority: 10
+      enabled: true
+    aniList:
+      priority: 9
+      enabled: true
+    mal:
+      priority: 8
+      enabled: true

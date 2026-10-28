@@ -6,6 +6,7 @@ Self-hosted manga & comics stack on the Muspelheim worker node. Split out of Apo
 |-----------|-----------------------------|------------------------------------------|--------------------------|
 | Komga     | Comics/manga reader + OPDS  | `gotson/komga`                           | Authentik OIDC (native)  |
 | Suwayomi  | Manga downloader (Mihon)    | `ghcr.io/suwayomi/suwayomi-server`       | HTTP Basic (admin-only)  |
+| Komf      | Metadata & Cover Fetcher    | `sndxr/komf`                             | Authelia (forward-auth)  |
 
 *Note: Cloudflare anti-bot challenge solving is provided cluster-wide by the shared **Poseidon** fleet (`http://poseidon_flaresolverr:8191` over `aether-net`).*
 
@@ -13,13 +14,16 @@ Self-hosted manga & comics stack on the Muspelheim worker node. Split out of Apo
 
 Suwayomi downloads manga chapters as CBZ files directly into the shared
 `/mnt/storage/comics/library` directory. Komga reads that same directory as a
-library, so downloaded chapters appear automatically after a scan.
+library, so downloaded chapters appear automatically after a scan. Komf connects
+to Komga via Server-Sent Events (SSE), automatically matching new titles against
+AniList, MangaUpdates, and MyAnimeList to download official high-resolution
+posters and rich metadata.
 
 ```
-Suwayomi --downloads (CBZ)--> /mnt/storage/comics/library <--library-- Komga
+Suwayomi --downloads (CBZ)--> /mnt/storage/comics/library <--library-- Komga <--SSE/API-- Komf
 ```
 
-The `DOWNLOAD_AS_CBZ=true` env is mandatory — Suwayomi defaults to loose image
+The `DOWNLOAD_AS_CBZ=true` env is mandatory: Suwayomi defaults to loose image
 folders, which Komga cannot index.
 
 Some sources sit behind Cloudflare. Suwayomi routes those through the shared
@@ -46,19 +50,23 @@ Pushes to `main` deploy automatically via GitHub Actions on the Gaia runner
 | `SUWAYOMI_AUTH_PASSWORD`| secret   | Suwayomi basic-auth password   |
 | `KOMGA_OIDC_CLIENT_ID`  | secret   | Komga OIDC client-id (Authentik) |
 | `KOMGA_OIDC_CLIENT_SECRET`| secret  | Komga OIDC client-secret (Authentik) |
+| `KOMF_KOMGA_USER`       | var      | Komga username/email for Komf  |
+| `KOMF_KOMGA_PASSWORD`   | secret   | Komga password for Komf        |
 
-Komga's OIDC client-id/secret are injected as container env vars (see `config/komga/application.yml`).
+Komga's OIDC client-id/secret and Komf's credentials are injected as container env vars.
 
 ## Auth
 
-- **Komga** — native OIDC against Authentik (`id.${DOMAIN_NAME}`). Configure the
+- **Komga**: native OIDC against Authentik (`id.${DOMAIN_NAME}`). Configure the
   Authentik Application + OAuth2/OpenID Connect provider. The OIDC config is
   committed at `config/komga/application.yml` (loaded as a Swarm config); the
   client-id/secret come from env vars at deploy. Browser login is SSO; OPDS/Mihon still
   uses per-user Komga credentials (Basic Auth).
-- **Suwayomi** — no OIDC support yet (upstream request #926). Runs admin-only
+- **Suwayomi**: no OIDC support yet (upstream request #926). Runs admin-only
   behind HTTP Basic Auth (`AUTH_MODE=basic_auth`). Treat as an internal
   downloader, not a public reader.
+- **Komf**: Web UI protected behind Authelia forward-auth middleware on Traefik.
+  Communicates with Komga internally using Basic Auth via `KOMF_KOMGA_USER` / `KOMF_KOMGA_PASSWORD`.
 
 ## Migration from Apollo Core
 
@@ -80,6 +88,7 @@ adds `/mnt/storage/comics/library` as `/downloads` for the Suwayomi pipeline.
 |-----------|------------------------------|
 | Komga     | `https://komga.${DOMAIN_NAME}` |
 | Suwayomi  | `https://manga.${DOMAIN_NAME}` |
+| Komf      | `https://komf.${DOMAIN_NAME}`  |
 
 ## Notes
 

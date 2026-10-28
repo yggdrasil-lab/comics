@@ -19,6 +19,8 @@ jobs:
           SUWAYOMI_AUTH_PASSWORD: ${{ secrets.SUWAYOMI_AUTH_PASSWORD }}
           KOMGA_OIDC_CLIENT_ID: ${{ secrets.KOMGA_OIDC_CLIENT_ID }}
           KOMGA_OIDC_CLIENT_SECRET: ${{ secrets.KOMGA_OIDC_CLIENT_SECRET }}
+          KOMF_KOMGA_USER: ${{ vars.KOMF_KOMGA_USER }}
+          KOMF_KOMGA_PASSWORD: ${{ secrets.KOMF_KOMGA_PASSWORD }}
         run: |
           curl -fsSL https://raw.githubusercontent.com/yggdrasil-lab/yggdrasil-os/main/deploy/deploy.sh -o /tmp/deploy.sh
           chmod +x /tmp/deploy.sh
