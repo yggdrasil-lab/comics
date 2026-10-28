@@ -1,11 +1,15 @@
 # Komga OIDC (Authentik) configuration.
 # Loaded into the container as a read-only Docker Swarm config at
 # /config/application.yml (see the `configs:` block in docker-compose.yml).
-# Secrets are NOT stored here — the ${...} placeholders are resolved by Spring
+# Secrets are NOT stored here - the ${...} placeholders are resolved by Spring
 # Boot from the container environment, injected by GitHub Actions at deploy time.
 komga:
   oauth2-account-creation: true
   oidc-email-verification: false
+  cors:
+    allowed-origins:
+      - "https://komf.${DOMAIN_NAME}"
+      - "http://localhost:8085"
 
 spring:
   security:

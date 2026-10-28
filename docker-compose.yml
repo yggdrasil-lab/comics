@@ -1,4 +1,4 @@
-# Comics — self-hosted manga & comics stack
+# Comics - self-hosted manga & comics stack
 # Komga (reader) + Suwayomi (downloader). Deployed via Docker Swarm on the Muspelheim worker node.
 
 networks:
@@ -58,7 +58,7 @@ services:
 
   suwayomi:
     image: ghcr.io/suwayomi/suwayomi-server:stable
-    # Runs as UID 1000 by default (the image's `suwayomi` user) — matches the shared volume ownership.
+    # Runs as UID 1000 by default (the image's `suwayomi` user) - matches the shared volume ownership.
     environment:
       - TZ=Pacific/Auckland
       - DOWNLOAD_AS_CBZ=true
