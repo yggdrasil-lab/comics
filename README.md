@@ -6,7 +6,7 @@ Self-hosted manga & comics stack on the Muspelheim worker node. Split out of Apo
 |-----------|-----------------------------|------------------------------------------|--------------------------|
 | Komga     | Comics/manga reader + OPDS  | `gotson/komga`                           | Authentik OIDC (native)  |
 | Suwayomi  | Manga downloader (Mihon)    | `ghcr.io/suwayomi/suwayomi-server`       | HTTP Basic (admin-only)  |
-| Komf      | Metadata & Cover Fetcher    | `sndxr/komf`                             | Authelia (forward-auth)  |
+| Komf      | Metadata & Cover Fetcher    | `sndxr/komf`                             | Authentik (forward-auth) |
 
 *Note: Cloudflare anti-bot challenge solving is provided cluster-wide by the shared **Poseidon** fleet (`http://poseidon_flaresolverr:8191` over `aether-net`).*
 
@@ -65,7 +65,7 @@ Komga's OIDC client-id/secret and Komf's credentials are injected as container e
 - **Suwayomi**: no OIDC support yet (upstream request #926). Runs admin-only
   behind HTTP Basic Auth (`AUTH_MODE=basic_auth`). Treat as an internal
   downloader, not a public reader.
-- **Komf**: Web UI protected behind Authelia forward-auth middleware on Traefik.
+- **Komf**: Web UI protected behind Authentik forward-auth middleware on Traefik.
   Communicates with Komga internally using Basic Auth via `KOMF_KOMGA_USER` / `KOMF_KOMGA_PASSWORD`.
 
 ## Migration from Apollo Core

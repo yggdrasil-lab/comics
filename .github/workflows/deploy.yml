@@ -12,12 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate Required Configuration
+        env:
+          DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+          KOMGA_OIDC_CLIENT_ID: ${{ vars.KOMGA_OIDC_CLIENT_ID }}
+          KOMGA_OIDC_CLIENT_SECRET: ${{ secrets.KOMGA_OIDC_CLIENT_SECRET }}
+        run: |
+          MISSING=""
+          [ -z "$DOMAIN_NAME" ] && MISSING="$MISSING DOMAIN_NAME"
+          [ -z "$KOMGA_OIDC_CLIENT_ID" ] && MISSING="$MISSING KOMGA_OIDC_CLIENT_ID"
+          [ -z "$KOMGA_OIDC_CLIENT_SECRET" ] && MISSING="$MISSING KOMGA_OIDC_CLIENT_SECRET"
+          if [ -n "$MISSING" ]; then
+            echo "::error::Deployment halted: missing required configuration:$MISSING" >&2
+            exit 1
+          fi
+
       - name: Deploy Stack
         env:
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
           SUWAYOMI_AUTH_USERNAME: ${{ vars.SUWAYOMI_AUTH_USERNAME }}
           SUWAYOMI_AUTH_PASSWORD: ${{ secrets.SUWAYOMI_AUTH_PASSWORD }}
-          KOMGA_OIDC_CLIENT_ID: ${{ secrets.KOMGA_OIDC_CLIENT_ID }}
+          KOMGA_OIDC_CLIENT_ID: ${{ vars.KOMGA_OIDC_CLIENT_ID }}
           KOMGA_OIDC_CLIENT_SECRET: ${{ secrets.KOMGA_OIDC_CLIENT_SECRET }}
           KOMF_KOMGA_USER: ${{ vars.KOMF_KOMGA_USER }}
           KOMF_KOMGA_PASSWORD: ${{ secrets.KOMF_KOMGA_PASSWORD }}
